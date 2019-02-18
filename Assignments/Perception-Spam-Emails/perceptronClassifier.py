@@ -5,6 +5,36 @@ Abdullah Zameek
 
 '''
 
+
+'''
+Helper Math functions.
+Since numpy and other external libraries are forbidden, the following helper functions will
+help with the linear algebra and other mathematical operations associated with the Perceptron
+'''
+################# MATH FUNCTIONS START ######################################
+
+def vectorAdd(x,y):
+    sum = []
+    if(len(x) != len(y)):
+        print("The lists have to be of equal length!")
+        return None
+    else:
+        sum = [i+j for i,j in zip(x,y)]
+        return sum
+
+def dotProduct(x,y):
+    if(len(x) != len(y)):
+        print("The lists have to be of equal length!")
+        return None
+    else:
+        return sum(i*j for i,j in zip(x,y))
+
+def scalarMultiply(scalar,vect):
+    return [scalar*i for i in vect]
+
+
+############ END OF MATH FUNCTIONS ###########################
+
 class Perceptron():
 
     def __init__(self, trainingSize, trainingOrigin, featureSize):
@@ -57,17 +87,23 @@ class Perceptron():
                 featureVec.append(0)
         return featureVec
 
+    def perceptron_train(self):
+        pass
+    
+    def perceptron_error(self):
+        pass
+
+    
 def main():
     perp = Perceptron(4000, "spam_train.txt",26)
     perp.split()
     trainingData = open("trainingSet.txt","r")
     features = perp.words(trainingData)
     print(len(features))
-    trainingtest = open("validationFile.txt", "r")
-    data = trainingtest.readline()
-    print(data)
-    print(perp.feature_vector(data))
-    #print("The length of features is" + features)
+    # trainingtest = open("validationFile.txt", "r")
+    # data = trainingtest.readline()
+    # print(data)
+    # print(perp.feature_vector(data))
 
 if __name__ == "__main__":
 	main()
