@@ -3,15 +3,13 @@ Abdullah Zameek
 
 16th February 2019 - Perceptron Spam Email Classifier
 
-'''
 
-
-'''
-Helper Math functions.
+Helper Math and Other Support functions.
 Since numpy and other external libraries are forbidden, the following helper functions will
-help with the linear algebra and other mathematical operations associated with the Perceptron
+help with the linear algebra and other mathematical operations associated with the Perceptron, 
+as well as with some file manipulation
 '''
-################# MATH FUNCTIONS START ######################################
+######################### MATH AND HELPER FUNCTIONS START HERE ######################################
 
 def vectorAdd(x,y):
     sum = []
@@ -33,7 +31,20 @@ def scalarMultiply(scalar,vect):
     return [scalar*i for i in vect]
 
 
-############ END OF MATH FUNCTIONS ###########################
+def zeroVec(numZeroes):
+    zeroVec = []
+    zeroVec = [0]*numZeroes
+    return zeroVec
+
+def ftol(filename):
+    stream = open(filename, "r")
+    returnList = []
+    for elem in stream:
+        elem = elem.split()
+        returnList.append(elem)
+    return returnList
+
+####################   END OF MATH FUNCTIONS ###########################
 
 class Perceptron():
 
@@ -47,23 +58,22 @@ class Perceptron():
         #training and validation files, the function takes in the training size and outputs two files accordingly
 
         rawDataFile = open(self.trainingOrigin, "r")
-        self.trainingFile = open("trainingSet.txt", "w")
-        self.validationFile = open("validationFile.txt", "w")
+        self.trainingFile = open("training.txt", "w")
+        self.validationFile = open("validation.txt", "w")
         self.rawData = rawDataFile.readlines()
 
         for i in range(self.trainingSize):
-            self.trainingFile.write(self.rawData[i])
-        self.trainingFile.close()
+            self.validationFile.write(self.rawData[i])
+        self.validationFile.close()
 
         for j in range(self.trainingSize,len(self.rawData)):
-            self.validationFile.write(self.rawData[j])
-        self.validationFile.close()
+            self.trainingFile.write(self.rawData[j])
+        self.trainingFile.close()
 
 
     def words(self, data):
         repeatsDict = {}
         self.features = []
-        
         for elem in data:
             elem = elem.split()
             for word in set(elem[1:]):
@@ -78,7 +88,7 @@ class Perceptron():
     
     def feature_vector(self, email):
         featureVec = []
-        email = email.split()
+        # email = email.split()
         email = email[1:]
         for word in self.features:
             if word in email:
@@ -87,23 +97,108 @@ class Perceptron():
                 featureVec.append(0)
         return featureVec
 
-    def perceptron_train(self):
-        pass
-    
-    def perceptron_error(self):
-        pass
+    def getFeatureVectorsLabels(self,filename):
+        emails = ftol(filename)
+        allFeatureVectors = []
+        allLabels = []
+        count = 0
+        print("Computing feature vectors..")
+        for email in emails:
+            allFeatureVectors.append(self.feature_vector(email))
+            if(email[0] == '1'):
+                allLabels.append(1)
+            else:
+                allLabels.append(-1)
+            count+=1
+        print("Features done, labels done")
+        return allFeatureVectors, allLabels
 
+    def perceptron_train(self,data):
+        self.featureVecs, self.labels = self.getFeatureVectorsLabels(data)
+        print("The number of features is ",len(self.features))
+        w = zeroVec(len(self.features))
+        k = 0
+        iterator = 0
+        n = len(self.featureVecs)
+        separated = False
+        passCount = 0
+        count = 0
+        ans = 0
+        print("Here we go...")
+        while not separated:
+            iterator+=1
+            separated = True
+            for count in range(n):
+                x = self.featureVecs[count]
+                y = self.labels[count]
+                ans = y*dotProduct(w,x)
+                if(ans > 0):
+                    pass
+                else:
+                    k+=1
+                    separated = False
+                    w = vectorAdd(w,scalarMultiply(y,x))
+            print("Parsed through set", iterator, " number of times")
+        print("Done")
+        return w, k, iterator
     
+    def perceptron_error(self,data,w):
+        featureVecs, labels = self.getFeatureVectorsLabels(data)
+        n = len(featureVecs)
+        e = 0
+
+        for count in range(n):
+            x = featureVecs[count]
+            y = labels[count]
+            ans = y*dotProduct(w,x)
+            if(ans > 0):
+                pass
+            else:
+                e+=1
+        return (e/n*100)
+
+
+    def returnMostPositiveNegative(self,w, numToFind):
+        mostPos = []
+        mostNeg = []
+        mostPosIndex = []
+        mostNegIndex = []
+
+        for i in range(numToFind):
+            max = w[0]
+            min = w[0]
+            for j in range(len(w)):
+                if(w[j] > max):
+                    mostPosIndex.append(w.index(max))
+                    w.remove(max)
+                if(w[j]<min):
+                    mostNegIndex.append(w.index(min))
+                    w.remove(min)
+        
+        for elem in mostNegIndex:
+            mostNeg.append(self.features[elem])
+        
+        for elem in mostPosIndex:
+            mostPos.append(self.features[elem])
+
+        return mostNeg, mostPos
+
 def main():
-    perp = Perceptron(4000, "spam_train.txt",26)
+    perp = Perceptron(1000, "spam_train.txt",26)
     perp.split()
-    trainingData = open("trainingSet.txt","r")
+    trainingData = open("training.txt","r")
     features = perp.words(trainingData)
-    print(len(features))
-    # trainingtest = open("validationFile.txt", "r")
-    # data = trainingtest.readline()
-    # print(data)
-    # print(perp.feature_vector(data))
+    trainingData.close()
 
+    
+    w, k, iterator = perp.perceptron_train("training.txt")
+    # wCopy = list(w)
+
+    print("The error rate on the training set is ", perp.perceptron_error("training.txt",w))
+    print("The error rate on the validation set is ",perp.perceptron_error("validation.txt",w))
+    print("The error rate on the spam_train set is ",perp.perceptron_error("spam_test.txt",w))
+    #mostNeg, mostPos = perp.returnMostPositiveNegative(w,12)
+    # print(mostNeg)
+    # print(mostPos)
 if __name__ == "__main__":
 	main()
