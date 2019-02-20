@@ -11,6 +11,7 @@ as well as with some file manipulation
 '''
 ######################### MATH AND HELPER FUNCTIONS START HERE ######################################
 
+#Given two vectors of equal length, this functions computes the sum of the two and returns it
 def vectorAdd(x,y):
     sum = []
     if(len(x) != len(y)):
@@ -20,6 +21,7 @@ def vectorAdd(x,y):
         sum = [i+j for i,j in zip(x,y)]
         return sum
 
+#Given two vectors of equal length, this function computes the dot/inner product of the two
 def dotProduct(x,y):
     if(len(x) != len(y)):
         print("The lists have to be of equal length!")
@@ -27,15 +29,17 @@ def dotProduct(x,y):
     else:
         return sum(i*j for i,j in zip(x,y))
 
+#Given a vector, this function mulitplies said vector with a scalar quantity 
 def scalarMultiply(scalar,vect):
     return [scalar*i for i in vect]
 
-
+#This function creates a vector of n-dimensions and fills it with zeroes
 def zeroVec(numZeroes):
     zeroVec = []
     zeroVec = [0]*numZeroes
     return zeroVec
 
+#This function converts a file to a list of lists. Used to access the emails with ease
 def ftol(filename):
     stream = open(filename, "r")
     returnList = []
@@ -47,7 +51,8 @@ def ftol(filename):
 ###############################   END OF MATH AND OTHER FUNCTIONS ###########################################
 
 class Perceptron():
-
+    
+    #Initial the class with the total number of emails and other essential values to split the data.
     def __init__(self, totalSize, trainingSize,validationSize,trainingOrigin, featureSize):
         self.totalSize = totalSize
         self.trainingSize = trainingSize
@@ -64,15 +69,18 @@ class Perceptron():
         self.validationFile = open("validation.txt", "w")
         self.rawData = rawDataFile.readlines()
 
+
+        #create the validation file
         for i in range(self.validationSize):
             self.validationFile.write(self.rawData[i])
         self.validationFile.close()
 
+        #create the training data set
         for j in range(self.validationSize,self.validationSize+self.trainingSize):
             self.trainingFile.write(self.rawData[j])
         self.trainingFile.close()
 
-
+    #generate the bag of words that contains the "bag of features"
     def words(self, data):
         repeatsDict = {}
         self.features = []
@@ -88,10 +96,10 @@ class Perceptron():
                 self.features.append(word)
         return self.features
     
+    #creates a single feature vector
     def feature_vector(self, email):
         featureVec = []
-        # email = email.split()
-        email = email[1:]
+        email = email[1:] #This is get rid of the label 0 or 1
         for word in self.features:
             if word in email:
                 featureVec.append(1)
@@ -99,6 +107,7 @@ class Perceptron():
                 featureVec.append(0)
         return featureVec
 
+    #returns all the feature vectors and labels. Done for convenience's sake. 
     def getFeatureVectorsLabels(self,filename):
         emails = ftol(filename)
         allFeatureVectors = []
@@ -115,6 +124,7 @@ class Perceptron():
         print("Features done, labels done")
         return allFeatureVectors, allLabels
 
+    
     def perceptron_train(self,data):
         self.featureVecs, self.labels = self.getFeatureVectorsLabels(data)
         print("The number of features is ",len(self.features))
