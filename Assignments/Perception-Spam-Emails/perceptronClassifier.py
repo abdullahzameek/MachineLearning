@@ -44,7 +44,7 @@ def ftol(filename):
         returnList.append(elem)
     return returnList
 
-####################   END OF MATH FUNCTIONS ###########################
+###############################   END OF MATH AND OTHER FUNCTIONS ###########################################
 
 class Perceptron():
 
@@ -159,29 +159,15 @@ class Perceptron():
 
 
     def returnMostPositiveNegative(self,w, numToFind):
-        mostPos = []
-        mostNeg = []
-        mostPosIndex = []
-        mostNegIndex = []
+        features = list(self.features)
+        wVec = list(w)
+        wVec = wVec.sort()
+        maxVec = wVec[:numToFind]
+        minVec = wVec[-numToFind:]
 
-        for i in range(numToFind):
-            max = w[0]
-            min = w[0]
-            for j in range(len(w)):
-                if(w[j] > max):
-                    mostPosIndex.append(w.index(max))
-                    w.remove(max)
-                if(w[j]<min):
-                    mostNegIndex.append(w.index(min))
-                    w.remove(min)
-        
-        for elem in mostNegIndex:
-            mostNeg.append(self.features[elem])
-        
-        for elem in mostPosIndex:
-            mostPos.append(self.features[elem])
 
-        return mostNeg, mostPos
+    
+        return minVec, maxVec0
 
 def main():
     perp = Perceptron(1000, "spam_train.txt",26)
@@ -196,9 +182,10 @@ def main():
 
     print("The error rate on the training set is ", perp.perceptron_error("training.txt",w))
     print("The error rate on the validation set is ",perp.perceptron_error("validation.txt",w))
-    print("The error rate on the spam_train set is ",perp.perceptron_error("spam_test.txt",w))
-    #mostNeg, mostPos = perp.returnMostPositiveNegative(w,12)
-    # print(mostNeg)
-    # print(mostPos)
+    print("The error rate on the spam_test set is ",perp.perceptron_error("spam_test.txt",w))
+    mostNeg, mostPos = perp.returnMostPositiveNegative(w,12)
+    print(mostNeg)
+    print(mostPos)
+
 if __name__ == "__main__":
 	main()
