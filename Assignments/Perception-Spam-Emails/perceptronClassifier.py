@@ -48,10 +48,12 @@ def ftol(filename):
 
 class Perceptron():
 
-    def __init__(self, trainingSize, trainingOrigin, featureSize):
+    def __init__(self, totalSize, trainingSize,validationSize,trainingOrigin, featureSize):
+        self.totalSize = totalSize
         self.trainingSize = trainingSize
         self.trainingOrigin = trainingOrigin
         self.featureSize = featureSize
+        self.validationSize = validationSize
 
     def split(self):
         #This function takes the input file and depending on the number of lines that are required for the 
@@ -62,11 +64,11 @@ class Perceptron():
         self.validationFile = open("validation.txt", "w")
         self.rawData = rawDataFile.readlines()
 
-        for i in range(self.trainingSize):
+        for i in range(self.validationSize):
             self.validationFile.write(self.rawData[i])
         self.validationFile.close()
 
-        for j in range(self.trainingSize,len(self.rawData)):
+        for j in range(self.validationSize,self.validationSize+self.trainingSize):
             self.trainingFile.write(self.rawData[j])
         self.trainingFile.close()
 
@@ -158,19 +160,18 @@ class Perceptron():
         return (e/n*100)
 
 
-    def returnMostPositiveNegative(self,w, numToFind):
-        features = list(self.features)
-        wVec = list(w)
-        wVec = wVec.sort()
-        maxVec = wVec[:numToFind]
-        minVec = wVec[-numToFind:]
-
+    # def returnMostPositiveNegative(self,w, numToFind):
+    #     features = list(self.features)
+    #     wVec = list(w)
+    #     wVec = wVec.sort()
+    #     maxVec = wVec[: numToFind]
+    #     minVec = wVec[-numToFind:]
 
     
-        return minVec, maxVec0
+    #     return minVec, maxVec0
 
 def main():
-    perp = Perceptron(1000, "spam_train.txt",26)
+    perp = Perceptron(4997,3997, 1000, "spam_train.txt",30)
     perp.split()
     trainingData = open("training.txt","r")
     features = perp.words(trainingData)
@@ -180,7 +181,7 @@ def main():
     w, k, iterator = perp.perceptron_train("training.txt")
     # wCopy = list(w)
 
-    print("The error rate on the training set is ", perp.perceptron_error("training.txt",w))
+    #print("The error rate on the training set is ", perp.perceptron_error("training.txt",w))
     print("The error rate on the validation set is ",perp.perceptron_error("validation.txt",w))
     print("The error rate on the spam_test set is ",perp.perceptron_error("spam_test.txt",w))
     mostNeg, mostPos = perp.returnMostPositiveNegative(w,12)
