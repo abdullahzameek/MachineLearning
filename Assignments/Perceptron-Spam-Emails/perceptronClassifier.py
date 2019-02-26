@@ -149,7 +149,7 @@ class Perceptron():
         hyperplane and we exit with that value of w. The rest of the algorithm is trivial implementation 
         of the perceptron algorithm described in class
         '''
-        while not separated and iterator < self.iterLimit: 
+        while not separated and iterator < self.iterLimit:
             iterator+=1
             separated = True
             for count in range(n):
@@ -224,7 +224,7 @@ class Perceptron():
 
 
 def main():
-    perp = Perceptron(4997,3997, 1000, "spam_train.txt",26,200)
+    perp = Perceptron(4997,3997, 1000, "spam_train.txt",22,20)
     perp.split()
     trainingData = open("training.txt","r")
     features = perp.words(trainingData)
@@ -233,10 +233,10 @@ def main():
     w, k, iterator = perp.perceptron_train("training.txt")
     
 
-    print("The error rate on the training set is ", perp.perceptron_error("training.txt",w))
-    print("The total number of mistakes made is:  ",k)
-    print("The total number of passes made through the data is: ", iterator)
-    print("The error rate on the validation set is ",perp.perceptron_error("validation.txt",w))
+    # print("The error rate on the training set is ", perp.perceptron_error("training.txt",w))
+    # print("The total number of mistakes made is:  ",k)
+    # print("The total number of passes made through the data is: ", iterator)
+    # print("The error rate on the validation set is ",perp.perceptron_error("validation.txt",w))
     print("The error rate on the spam_test set is ",perp.perceptron_error("spam_test.txt",w))
     mostPos, mostNeg = perp.returnMostPositiveNegative(w,12)
     print(mostNeg)
