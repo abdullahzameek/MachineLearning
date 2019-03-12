@@ -2,7 +2,6 @@
 Abdullah Zameek - Assignment 02 Gradient Descent
 
 '''
-import numpy as np
 from random import shuffle
 
 ######################### MATH AND HELPER FUNCTIONS START HERE ######################################
