@@ -152,41 +152,47 @@ for i in range(len(sortedIndex)):
 # print(z[:16])
 
 
-
+xPrimes = []
 ########## Reconstruct the first face using the first two PCs #########
 
 #### Your Code Here ####
+def computeFace(compNo, faceNo,image_count,show=True):
+    U = np.matmul(z[:compNo],facesMat)
+    transU = U.transpose()
+    omega = np.matmul(U,faces[faceNo])
+    omega = omega.transpose()
+    uOmega = np.array(np.matmul(transU,omega))
+    xPrime = []
+    for i in range(len(mean)):
+        xPrime.append(mean[i]+uOmega[i])
+    xPrime = np.array(xPrime)
+    xPrimes.append(xPrime)
 
-compNo = 400
-
-U = np.matmul(z[:compNo],facesMat)
-transU = U.transpose()
-omega = np.matmul(U,faces[0])
-omega = omega.transpose()
-uOmega = np.array(np.matmul(transU,omega))
-xPrime = []
-for i in range(len(mean)):
-    xPrime.append(mean[i]+uOmega[i])
-xPrime = np.array(xPrime)
-print(xPrime.shape)
-
-first_face4 = np.reshape(xPrime,(64,64),order='F')
-image_count+=1
-plt.figure(image_count)
-plt.title('First_face4')
-plt.imshow(first_face4,cmap=plt.cm.gray)
-plt.show()
+    faceTitle = "Components =  "+str(compNo)
+    face = np.reshape(xPrime,(64,64),order='F')
+    image_count+=1
+    plt.figure(image_count)
+    plt.title(faceTitle)
+    plt.imshow(face,cmap=plt.cm.gray)
+    if(show):
+        plt.show()
 
 
 
 ########## Reconstruct random face using the first 5, 10, 25, 50, 100, 200, 300, 399  PCs ###########
 
 #### Your Code Here ####
-# PC = sortedZ[0]
-# print(PC.shape)
-
-
-
+computeFace(2,99,image_count)
+computeFace(5,99,image_count)
+computeFace(10,99,image_count)
+computeFace(25,99,image_count)
+computeFace(50,99,image_count)
+computeFace(100,99,image_count)
+computeFace(200,99,image_count)
+computeFace(300,99,image_count)
+computeFace(399,99,image_count,True)
+print(len(xPrimes))
+print(xPrimes)
 
 
 ######### Plot proportion of variance of all the PCs ###############
