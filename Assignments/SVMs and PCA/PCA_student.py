@@ -107,6 +107,7 @@ image_count+=1
 plt.figure(image_count)
 plt.title('First_face')
 plt.imshow(first_face1,cmap=plt.cm.gray)
+
 # plt.show()
 
 ######### calculate the eigenvalues and eigenvectors of the covariance matrix #####################
@@ -157,6 +158,7 @@ xPrimes = []
 
 #### Your Code Here ####
 def computeFace(compNo, faceNo,image_count,show=True):
+
     U = np.matmul(z[:compNo],facesMat)
     transU = U.transpose()
     omega = np.matmul(U,faces[faceNo])
@@ -168,7 +170,7 @@ def computeFace(compNo, faceNo,image_count,show=True):
     xPrime = np.array(xPrime)
     xPrimes.append(xPrime)
 
-    faceTitle = "Components =  "+str(compNo)
+    faceTitle = "Components =  "+ str(compNo)
     face = np.reshape(xPrime,(64,64),order='F')
     image_count+=1
     plt.figure(image_count)
@@ -176,8 +178,6 @@ def computeFace(compNo, faceNo,image_count,show=True):
     plt.imshow(face,cmap=plt.cm.gray)
     if(show):
         plt.show()
-
-
 
 ########## Reconstruct random face using the first 5, 10, 25, 50, 100, 200, 300, 399  PCs ###########
 
@@ -187,7 +187,7 @@ computeFace(5,99,image_count)
 computeFace(10,99,image_count)
 computeFace(25,99,image_count)
 computeFace(50,99,image_count)
-computeFace(100,99,image_count)
+computeFace(100,99,image_count) 
 computeFace(200,99,image_count)
 computeFace(300,99,image_count)
 computeFace(399,99,image_count,True)
@@ -206,6 +206,24 @@ print(xPrimes)
 #   display all figures and return to the ipython prompt.
 
 #### Your Code Here ####
+lambdaSum = 0
+lambdaProp = []
+compNo = [2,5,10,25,50,100,200,300,399]
+
+for i in range(len(lambdas)):
+    lambdaSum += lambdas[i]
+print(lambdaSum)
+
+for j in range(len(lambdas)):
+    lambdaProp.append(lambdas[j]/lambdaSum)
+
+print(lambdaSum)
+plt.plot(lambdaProp)
+plt.show()
+
+
+
+    
 
 
 
