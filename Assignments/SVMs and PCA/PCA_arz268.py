@@ -157,7 +157,7 @@ xPrimes = []
 ########## Reconstruct the first face using the first two PCs #########
 
 #### Your Code Here ####
-def computeFace(compNo, faceNo,image_count,show=True):
+def computeFace(compNo, faceNo,image_count):
 
     U = np.matmul(z[:compNo],facesMat)
     transU = U.transpose()
@@ -176,8 +176,7 @@ def computeFace(compNo, faceNo,image_count,show=True):
     plt.figure(image_count)
     plt.title(faceTitle)
     plt.imshow(face,cmap=plt.cm.gray)
-    if(show):
-        plt.show()
+    plt.show()
 
 ########## Reconstruct random face using the first 5, 10, 25, 50, 100, 200, 300, 399  PCs ###########
 
@@ -190,9 +189,8 @@ computeFace(50,99,image_count)
 computeFace(100,99,image_count) 
 computeFace(200,99,image_count)
 computeFace(300,99,image_count)
-computeFace(399,99,image_count,True)
-print(len(xPrimes))
-print(xPrimes)
+computeFace(399,99,image_count)
+
 
 
 ######### Plot proportion of variance of all the PCs ###############
@@ -219,6 +217,9 @@ for j in range(len(lambdas)):
 
 print(lambdaSum)
 plt.plot(lambdaProp)
+plt.xlabel("No. of Components")
+plt.ylabel("Proportion of Variance")
+plt.title("Proportion of Variance across no. of components")
 plt.show()
 
 
