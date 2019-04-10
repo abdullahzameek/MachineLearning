@@ -11,7 +11,7 @@ as well as with some file manipulation
 '''
 import math
 import time
-
+import numpy as np 
 ######################### MATH AND HELPER FUNCTIONS START HERE ######################################
 
 #Given two vectors of equal length, this functions computes the sum of the two and returns it
@@ -167,40 +167,143 @@ class NeuralNetwork():
             sum += tempSum
         return sum/m
 
-class NeuralNumpyNetwork():
+               
+# x = ftol("ps5_data.csv") #5000 values of x, each of dim(400)
+# y = labelPreprocessor(ftol("ps5_data-labels.csv")) # 5000 labels
+# w1 = ftol("ps5_theta1.csv") # 25 values in w1, each value of dim(401), the first term is the bias
+# w2 = ftol("ps5_theta2.csv") # 10 values in w2, each value of dim(26), the first term is the bias
 
+# net = NeuralNetwork()
+
+# error, timeTaken = net.forwardProp(w1,w2,x,y)
+
+# hws = net.getOutputLayer(x,w1,w2)
+# catY = net.toCategorical(y)
+# mle = net.MLE(y)
+
+# print("The error rate is : ", error) #Reported error is 0.0248
+# print("The MLE cost function is : ",mle) #Reported MLE Loss Function value is 0.15284346245189523
+# print("The time taken is ", timeTaken) #Reported time taken is approximately 4.167617321014404 (varies on each run)
+
+
+######################### END OF IMPLEMENTATION WITHOUT NUMPY ###########################################################
+
+
+'''
+
+Here's the Neural Net implementation using Numpy
+
+'''
+
+class NeuralNumpyNetwork():
+    
     def __init__(self):
         pass
-    
-    #sigmoid function
-    def g(self, z):
-        return 1/(1 + math.e**((z*-1)))
 
-    # A single neural unit, with an option of whether or not to include a sigmoid function 
+    def g(self, z):
+        return np.divide(1,(1 + np.exp((z*-1))))
+    
     def neuralUnit(self,wi, a, sigmoid=True):
         b = wi[0]
-        z = dotProduct(a,wi[1:]) + b
+        z = np.add(np.dot(a,wi[1:]),b)
         if(sigmoid):
             return self.g(z)
         else:
             return z
     
+    #Softmax layer after output 
+    def softmax(self, output):
+        dist = np.zeros(10)
+        denominator = np.sum((np.exp(i) for i in output))
+        for elem in output:
+            np.append(dist, np.divide(np.exp(elem),denominator))
+        return dist
+    
+    #The hidden + output layers of the network, minus the softmax layer
+    def completeNetwork(self, w1, w2, x, softmax=True):
+        hiddenLayer = np.zeros(25)
+        outputLayer = np.zeros(10)
+        for wi in w1:
+            np.append(hiddenLayer, self.neuralUnit(wi,x))
+        for wj in w2:
+            np.append(outputLayer, self.neuralUnit(wj,hiddenLayer, sigmoid=False))
+        return self.softmax(outputLayer)
+    
+    def maxIndex(self, output):
+        max = 0
+        print("The shape is ", output.shape)
 
-               
-x = ftol("ps5_data.csv") #5000 values of x, each of dim(400)
-y = labelPreprocessor(ftol("ps5_data-labels.csv")) # 5000 labels
-w1 = ftol("ps5_theta1.csv") # 25 values in w1, each value of dim(401), the first term is the bias
-w2 = ftol("ps5_theta2.csv") # 10 values in w2, each value of dim(26), the first term is the bias
+        for i in np.nditer(output):
+            if output[max] < output[i]:
+                max = i
+        return max
+    
+    def classifier(self, w1, w2, x):
+        return self.maxIndex(self.completeNetwork(w1,w2,x))
+    
+    #Calculate the error rate of the predictions
+    def errorRate(self,predict,y):
+        error = 0
+        for i in np.nditer(y):
+            if predict[i] != y[i]:
+                error += 1
+        return np.divide(error,y.shape)
 
-net = NeuralNetwork()
+    #Feed forward the values of x to the hidden layer and then to the output layer
+    def forwardProp(self,w1,w2,x,y):
+        startTime = time.time()
+        self.predictions = np.zeros(5000)
+        for image in x:
+            np.append(self.predictions, self.classifier(w1,w2,image))
+        endTime = time.time()
+        return self.errorRate(self.predictions,y), endTime-startTime
 
-error, timeTaken = net.forwardProp(w1,w2,x,y)
+    # #Get a vectorised version of y
+    # def toCategorical(self,y):
+    #     self.catY = []
+    #     dim  = 10
+    #     for yi in y:
+    #         oneShot = zeroVec(dim)
+    #         oneShot[yi] = 1
+    #         self.catY.append(oneShot)
+    #     return self.catY
 
-hws = net.getOutputLayer(x,w1,w2)
-catY = net.toCategorical(y)
-mle = net.MLE(y)
+    # #Get the 10 outputs from the output layer
+    # def getOutputLayer(self,x, w1, w2):
+    #     self.hws = []
+    #     for image in x:
+    #         self.hws.append(self.completeNetwork(w1,w2,image))
+    #     return self.hws
 
-print("The error rate is : ", error) #Reported error is 0.0248
-print("The MLE cost function is : ",mle) #Reported MLE Loss Function value is 0.15284346245189523
-print("The time taken is ", timeTaken) #Reported time taken is approximately 4.167617321014404 (varies on each run)
+    # #MLE cost function implementation
+    # def MLE(self, y):
+    #     m = len(y)
+    #     dim = 10
+    #     sum = 0
+    #     for i in range(m):
+    #         hwi = self.hws[i]
+    #         yi = self.catY[i]
+    #         tempSum = 0
+    #         for j in range(dim):
+    #             tempSum += (yi[j]*math.log(hwi[j]) + (1-yi[j])*math.log(1-hwi[j]))*-1
+    #         sum += tempSum
+    #     return sum/m
 
+    
+
+
+
+
+
+
+x1 = np.genfromtxt('ps5_data.csv',delimiter=',')
+y1 = np.genfromtxt('ps5_data-labels.csv',delimiter=',')
+y1 = y1-1
+w1Prime = np.genfromtxt('ps5_theta1.csv',delimiter=',')
+w2Prime = np.genfromtxt('ps5_theta2.csv',delimiter=',')
+
+print(w1Prime[1].shape)
+
+net = NeuralNumpyNetwork()
+
+error, timeTaken = net.forwardProp(w1Prime,w2Prime,x1,y1)
