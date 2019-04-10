@@ -5,9 +5,9 @@ Abdullah Zameek
 
 
 Helper Math and Other Support functions.
-The following helper functions will
-help with the linear algebra and other mathematical operations associated with the Neural Network, 
+The following helper functions will help with the linear algebra and other mathematical operations associated with the Neural Network, 
 as well as with some file manipulation
+
 '''
 import math
 import time
@@ -42,7 +42,7 @@ def zeroVec(numZeroes):
     zeroVec = [0]*numZeroes
     return zeroVec
 
-#This function converts a file to a list of lists. Used to access the emails with ease
+#This function converts a file to a list of lists. Used to access the csv's with ease
 def ftol(filename):
     stream = open(filename, "r")
     returnList = []
@@ -54,6 +54,7 @@ def ftol(filename):
         returnList.append(floats)
     return returnList
 
+#This function used to pre-process the y values
 def labelPreprocessor(y):
     newLabelList = []
     for elem in y: 
@@ -65,19 +66,26 @@ def labelPreprocessor(y):
 
 ###############################   END OF MATH AND OTHER FUNCTIONS ###########################################
 
+
 class NeuralNetwork():
 
     def __init__(self):
         pass
     
+    #sigmoid function
     def g(self, z):
         return 1/(1 + math.e**((z*-1)))
-    
-    def neuralUnit(self,wi, a):
+
+    # A single neural unit, with an option of whether or not to include a sigmoid function 
+    def neuralUnit(self,wi, a, sigmoid=True):
         b = wi[0]
         z = dotProduct(a,wi[1:]) + b
-        return self.g(z)
+        if(sigmoid):
+            return self.g(z)
+        else:
+            return z
 
+    #Softmax layer after output 
     def softmax(self, output):
         dist = []
         denominator = sum(math.e**i for i in output)
@@ -85,18 +93,20 @@ class NeuralNetwork():
             dist.append((math.e**elem)/denominator)
         return dist
 
+    #The hidden + output layers of the network, minus the softmax layer
     def completeNetwork(self, w1, w2, x, softmax=True):
         hiddenLayer = []
         outputLayer = []
         for wi in w1:
             hiddenLayer.append(self.neuralUnit(wi,x))
+        
         for wj in w2:
-            outputLayer.append(self.neuralUnit(wj,hiddenLayer))
-        if(softmax):
-            return self.softmax(outputLayer)
-        else:
-            return outputLayer
+            outputLayer.append(self.neuralUnit(wj,hiddenLayer,sigmoid=False))
 
+        return self.softmax(outputLayer)
+    
+
+    #Get the largest indices here
     def maxIndex(self, output):
         max = 0
         for i in range(len(output)):
@@ -104,10 +114,11 @@ class NeuralNetwork():
                 max = i
         return max
     
+    #Classifyier a given input by returning the max index i.e the index that had the highest probability
     def classifier(self, w1, w2, x):
         return self.maxIndex(self.completeNetwork(w1,w2,x))
     
-    
+    #Calculate the error rate of the predictions
     def errorRate(self,predict,y):
         error = 0
         for i in range(len(y)):
@@ -116,6 +127,7 @@ class NeuralNetwork():
         return (error/len(y))
     
 
+    #Feed forward the values of x to the hidden layer and then to the output layer
     def forwardProp(self,w1,w2,x,y):
         startTime = time.time()
         self.predictions = []
@@ -124,6 +136,7 @@ class NeuralNetwork():
         endTime = time.time()
         return self.errorRate(self.predictions,y), endTime-startTime
 
+    #Get a vectorised version of y
     def toCategorical(self,y):
         self.catY = []
         dim  = 10
@@ -133,12 +146,14 @@ class NeuralNetwork():
             self.catY.append(oneShot)
         return self.catY
 
+    #Get the 10 outputs from the output layer
     def getOutputLayer(self,x, w1, w2):
         self.hws = []
         for image in x:
-            self.hws.append(self.completeNetwork(w1,w2,image,softmax=False))
+            self.hws.append(self.completeNetwork(w1,w2,image))
         return self.hws
 
+    #MLE cost function implementation
     def MLE(self, y):
         m = len(y)
         dim = 10
@@ -151,6 +166,26 @@ class NeuralNetwork():
                 tempSum += (yi[j]*math.log(hwi[j]) + (1-yi[j])*math.log(1-hwi[j]))*-1
             sum += tempSum
         return sum/m
+
+class NeuralNumpyNetwork():
+
+    def __init__(self):
+        pass
+    
+    #sigmoid function
+    def g(self, z):
+        return 1/(1 + math.e**((z*-1)))
+
+    # A single neural unit, with an option of whether or not to include a sigmoid function 
+    def neuralUnit(self,wi, a, sigmoid=True):
+        b = wi[0]
+        z = dotProduct(a,wi[1:]) + b
+        if(sigmoid):
+            return self.g(z)
+        else:
+            return z
+    
+
                
 x = ftol("ps5_data.csv") #5000 values of x, each of dim(400)
 y = labelPreprocessor(ftol("ps5_data-labels.csv")) # 5000 labels
@@ -165,7 +200,7 @@ hws = net.getOutputLayer(x,w1,w2)
 catY = net.toCategorical(y)
 mle = net.MLE(y)
 
-print("The error rate is : ", error)
-print("The MLE cost function is : ",mle)
-print("The time taken is ", timeTaken)
+print("The error rate is : ", error) #Reported error is 0.0248
+print("The MLE cost function is : ",mle) #Reported MLE Loss Function value is 0.15284346245189523
+print("The time taken is ", timeTaken) #Reported time taken is approximately 4.167617321014404 (varies on each run)
 
