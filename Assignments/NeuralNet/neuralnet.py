@@ -194,11 +194,12 @@ catY = net.toCategorical(y)
 mle = net.MLE(y)
 cost = net.costFunction(y)
 
+print("####### Non Numpy Implementation ###########\n")
 print("The error rate is : ", error) #Reported error is 0.0248
 print("The MLE cost function is : ",mle) #Reported MLE Loss Function value is 0.15284346245189523
 print("The cross-entropy loss function is : ",cost) #Reported MLE Loss Function value is 0.0868885603747501
 print("The time taken is ", timeTaken) #Reported time taken is approximately 4.167617321014404 (varies on each run)
-
+print("####### End of Non Numpy Implementation ###########\n")
 
 ############################################################### END OF IMPLEMENTATION WITHOUT NUMPY ###########################################################
 
@@ -211,8 +212,27 @@ Here's the Neural Net implementation using Numpy
 
 class NeuralNumpyNetwork():
 
-    def __init__():
+    def __init__(self):
         pass
+
+    def g(self, z):
+        return 1/(1+np.exp(-z))
+    
+    def neuralUnit(self,wi,a, sigmoid=True):
+        b = wi[0]
+        z = np.dot(a, wi[1:]) +b 
+        if(sigmoid):
+            return self.g(z)
+        else:
+            return z
+     
+    #Softmax layer after output 
+    def softmax(self, output):
+        dist = np.empty(10)
+        denominator = np.sum(np.exp(i) for i in output)
+        for elem in output:
+            dist.append((math.e**elem)/denominator)
+        return dist
 
 
 
@@ -231,3 +251,4 @@ w2Prime = np.genfromtxt('ps5_theta2.csv',delimiter=',')
 # error, timeTaken = net.forwardProp(w1Prime,w2Prime,x1,y1)
 # print(error)
 # print(timeTaken)
+print("############ Numpy Implementation ##############\n")
