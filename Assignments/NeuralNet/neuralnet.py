@@ -180,26 +180,26 @@ class NeuralNetwork():
 
 
 
-x = ftol("ps5_data.csv") #5000 values of x, each of dim(400)
-y = labelPreprocessor(ftol("ps5_data-labels.csv")) # 5000 labels
-w1 = ftol("ps5_theta1.csv") # 25 values in w1, each value of dim(401), the first term is the bias
-w2 = ftol("ps5_theta2.csv") # 10 values in w2, each value of dim(26), the first term is the bias
+# x = ftol("ps5_data.csv") #5000 values of x, each of dim(400)
+# y = labelPreprocessor(ftol("ps5_data-labels.csv")) # 5000 labels
+# w1 = ftol("ps5_theta1.csv") # 25 values in w1, each value of dim(401), the first term is the bias
+# w2 = ftol("ps5_theta2.csv") # 10 values in w2, each value of dim(26), the first term is the bias
 
-net = NeuralNetwork()
+# net = NeuralNetwork()
 
-error, timeTaken = net.forwardProp(w1,w2,x,y)
+# error, timeTaken = net.forwardProp(w1,w2,x,y)
 
-hws = net.getOutputLayer(x,w1,w2)
-catY = net.toCategorical(y)
-mle = net.MLE(y)
-cost = net.costFunction(y)
+# hws = net.getOutputLayer(x,w1,w2)
+# catY = net.toCategorical(y)
+# mle = net.MLE(y)
+# cost = net.costFunction(y)
 
-print("####### Non Numpy Implementation ###########\n")
-print("The error rate is : ", error) #Reported error is 0.0248
-print("The MLE cost function is : ",mle) #Reported MLE Loss Function value is 0.15284346245189523
-print("The cross-entropy loss function is : ",cost) #Reported MLE Loss Function value is 0.0868885603747501
-print("The time taken is ", timeTaken) #Reported time taken is approximately 4.167617321014404 (varies on each run)
-print("####### End of Non Numpy Implementation ###########\n")
+# print("####### Non Numpy Implementation ###########\n")
+# print("The error rate is : ", error) #Reported error is 0.0248
+# print("The MLE cost function is : ",mle) #Reported MLE Loss Function value is 0.15284346245189523
+# print("The cross-entropy loss function is : ",cost) #Reported MLE Loss Function value is 0.0868885603747501
+# print("The time taken is ", timeTaken) #Reported time taken is approximately 4.167617321014404 (varies on each run)
+# print("####### End of Non Numpy Implementation ###########\n")
 
 ############################################################### END OF IMPLEMENTATION WITHOUT NUMPY ###########################################################
 
@@ -218,37 +218,61 @@ class NeuralNumpyNetwork():
     def g(self, z):
         return 1/(1+np.exp(-z))
     
-    def neuralUnit(self,wi,a, sigmoid=True):
-        b = wi[0]
-        z = np.dot(a, wi[1:]) +b 
-        if(sigmoid):
-            return self.g(z)
-        else:
-            return z
-     
-    #Softmax layer after output 
-    def softmax(self, output):
-        dist = np.empty(10)
-        denominator = np.sum(np.exp(i) for i in output)
-        for elem in output:
-            dist.append((math.e**elem)/denominator)
-        return dist
+    def softmax(self, ax):
+        return (np.exp(ax)/np.sum(np.exp(ax), axis=0))
+
+    def completeNetwork(self, w1, w2, x):
+        hiddenLayer = np.apply_along_axis(self.g,0,np.matmul(x,w1))
+        hiddenLayer = np.insert(hiddenLayer, 0, 1.0, axis=1)
+        self.outputLayer = np.apply_along_axis(self.softmax, 1,np.matmul(hiddenLayer,w2))
+        return self.outputLayer
+
+    def getMax(self, output):
+        return np.argmax(output, axis=0)
+    
+    def classifier(self):
+        t1 = time.time()
+        self.pred = np.apply_along_axis(self.getMax,1,self.outputLayer)
+        t2 = time.time()
+        print(t2-t1)
+        return self.pred
+
+    def errorRate(self,y):
+        error = 0
+        for i in range(len(y)):
+            if self.pred[i] != y[i]:
+                error += 1
+        print("The number of errors with numpy is ",error)
+        return (error/len(y))
+
+    def costFunction(self)
+    
 
 
 
 
 x1 = np.genfromtxt('ps5_data.csv',delimiter=',')
+x1 = np.insert(x1, 0, 1.0, axis=1)
 y1 = np.genfromtxt('ps5_data-labels.csv',delimiter=',')
 y1 = y1-1
 w1Prime = np.genfromtxt('ps5_theta1.csv',delimiter=',')
+w1Prime = w1Prime.T
 w2Prime = np.genfromtxt('ps5_theta2.csv',delimiter=',')
+w2Prime = w2Prime.T
 
+net = NeuralNumpyNetwork()
 
+hiddenLayer = net.completeNetwork(w1Prime, w2Prime,x1)
+print(hiddenLayer.shape)
+print(hiddenLayer[0])
 
+pred = net.classifier()
+print(pred.shape)
 
-# net = NeuralNumpyNetwork()
-
+error = net.errorRate(y1)
+print(error)
 # error, timeTaken = net.forwardProp(w1Prime,w2Prime,x1,y1)
 # print(error)
 # print(timeTaken)
+
 print("############ Numpy Implementation ##############\n")
