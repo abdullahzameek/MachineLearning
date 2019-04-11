@@ -238,14 +238,12 @@ class NeuralNumpyNetwork():
         return self.pred
 
     def errorRate(self,y):
-        error = 0
-        for i in range(len(y)):
-            if self.pred[i] != y[i]:
-                error += 1
-        print("The number of errors with numpy is ",error)
-        return (error/len(y))
+        equal = np.sum(y == self.pred)
+        errors = (len(y)-equal)/len(y)
+        return errors
 
-    def costFunction(self)
+    def costFunction(self):
+        pass
     
 
 
