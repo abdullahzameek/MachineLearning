@@ -180,28 +180,28 @@ class NeuralNetwork():
 
 
 
-# x = ftol("ps5_data.csv") #5000 values of x, each of dim(400)
-# y = labelPreprocessor(ftol("ps5_data-labels.csv")) # 5000 labels
-# w1 = ftol("ps5_theta1.csv") # 25 values in w1, each value of dim(401), the first term is the bias
-# w2 = ftol("ps5_theta2.csv") # 10 values in w2, each value of dim(26), the first term is the bias
+x = ftol("ps5_data.csv") #5000 values of x, each of dim(400)
+y = labelPreprocessor(ftol("ps5_data-labels.csv")) # 5000 labels
+w1 = ftol("ps5_theta1.csv") # 25 values in w1, each value of dim(401), the first term is the bias
+w2 = ftol("ps5_theta2.csv") # 10 values in w2, each value of dim(26), the first term is the bias
 
-# net = NeuralNetwork()
+net = NeuralNetwork()
 
-# error, timeTaken = net.forwardProp(w1,w2,x,y)
+error, timeTaken = net.forwardProp(w1,w2,x,y)
 
-# hws = net.getOutputLayer(x,w1,w2)
-# catY = net.toCategorical(y)
-# mle = net.MLE(y)
-# cost = net.costFunction(y)
+hws = net.getOutputLayer(x,w1,w2)
+catY = net.toCategorical(y)
+mle = net.MLE(y)
+cost = net.costFunction(y)
 
-# print("####### Non Numpy Implementation ###########\n")
-# print("The error rate is : ", error) #Reported error is 0.0248
-# print("The MLE cost function is : ",mle) #Reported MLE Loss Function value is 0.15284346245189523
-# print("The cross-entropy loss function is : ",cost) #Reported MLE Loss Function value is 0.0868885603747501
-# print("The time taken is ", timeTaken) #Reported time taken is approximately 4.167617321014404 (varies on each run)
-# print("####### End of Non Numpy Implementation ###########\n")
+print("####### Non Numpy Implementation ###########\n")
+print("The error rate is : ", error) #Reported error is 0.0248
+print("The MLE cost function is : ",mle) #Reported MLE Loss Function value is 0.15284346245189523
+print("The cross-entropy loss function is : ",cost) #Reported MLE Loss Function value is 0.0868885603747501
+print("The time taken is ", timeTaken,"\n") #Reported time taken is approximately 4.167617321014404 (varies on each run)
+print("####### End of Non Numpy Implementation ###########\n")
 
-############################################################### END OF IMPLEMENTATION WITHOUT NUMPY ###########################################################
+########################################################## END OF IMPLEMENTATION WITHOUT NUMPY ###########################################################
 
 
 '''
@@ -234,20 +234,17 @@ class NeuralNumpyNetwork():
         t1 = time.time()
         self.pred = np.apply_along_axis(self.getMax,1,self.outputLayer)
         t2 = time.time()
-        print(t2-t1)
-        return self.pred
+        return self.pred, t2-t1
 
     def errorRate(self,y):
         equal = np.sum(y == self.pred)
         errors = (len(y)-equal)/len(y)
         return errors
 
-    def costFunction(self):
-        pass
-    
+############################################################### END OF NUMPY IMPLEMENTATION ###########################################################
 
 
-
+print("############ Numpy Implementation ##############\n")
 
 x1 = np.genfromtxt('ps5_data.csv',delimiter=',')
 x1 = np.insert(x1, 0, 1.0, axis=1)
@@ -260,17 +257,13 @@ w2Prime = w2Prime.T
 
 net = NeuralNumpyNetwork()
 
-hiddenLayer = net.completeNetwork(w1Prime, w2Prime,x1)
-print(hiddenLayer.shape)
-print(hiddenLayer[0])
+outputLayer = net.completeNetwork(w1Prime, w2Prime,x1)
+pred, time = net.classifier()
 
-pred = net.classifier()
-print(pred.shape)
+error1 = net.errorRate(y1)
+print("The error rate is : ", error1) #Reported error is 0.0248
+print("The time taken is ", time,"\n") #Reported time taken is approximately 0.0251 (varies on each run)
 
-error = net.errorRate(y1)
-print(error)
-# error, timeTaken = net.forwardProp(w1Prime,w2Prime,x1,y1)
-# print(error)
-# print(timeTaken)
+print("The NeuralNumpyNetwork is ",timeTaken/time," faster than the regular Neural Network\n")
+print("######################## END ########################################")
 
-print("############ Numpy Implementation ##############\n")
