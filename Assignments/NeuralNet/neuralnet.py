@@ -206,7 +206,7 @@ print("####### End of Non Numpy Implementation ###########\n")
 
 '''
 
-Here's the Neural Net implementation using Numpy
+Here's the Neural Net implementation using Numpy.
 
 '''
 
