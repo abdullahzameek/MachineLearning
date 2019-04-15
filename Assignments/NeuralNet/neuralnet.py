@@ -222,21 +222,28 @@ class NeuralNumpyNetwork():
     def softmax(self, ax):
         return (np.exp(ax)/np.sum(np.exp(ax), axis=0))
 
+    #first, compute the hidden layer by getting the matrix xw1 and then applying the sigmoid function across it.
+    #then append ones to each column to account for the bias that comes in the next step
+    #to generate the output layer, get the matrix xw1w2 and apply softmax across it to get the final output layer
+    #apply_across_axis takes in a function and applies it to a given matrix along a specified axis, used to map a function across elements of a matrix.
     def completeNetwork(self, w1, w2, x):
         hiddenLayer = np.apply_along_axis(self.g,0,np.matmul(x,w1))
         hiddenLayer = np.insert(hiddenLayer, 0, 1.0, axis=1)
         self.outputLayer = np.apply_along_axis(self.softmax, 1,np.matmul(hiddenLayer,w2))
         return self.outputLayer
 
+    #the index corresponding to the highest value is the classified answer
     def getMax(self, output):
         return np.argmax(output, axis=0)
     
+    #classify the entire outputlayer, xw1w2
     def classifier(self):
         t1 = time.time()
         self.pred = np.apply_along_axis(self.getMax,1,self.outputLayer)
         t2 = time.time()
         return self.pred, t2-t1
 
+    #get number of correct values and subtract from total number of values to get the number of errors made
     def errorRate(self,y):
         equal = np.sum(y == self.pred)
         errors = (len(y)-equal)/len(y)
@@ -248,17 +255,19 @@ class NeuralNumpyNetwork():
 print("############ Numpy Implementation ##############\n")
 
 x1 = np.genfromtxt('ps5_data.csv',delimiter=',')
-x1 = np.insert(x1, 0, 1.0, axis=1)
+x1 = np.insert(x1, 0, 1.0, axis=1) #append ones on column wise onto each value of x to account for the bias
 y1 = np.genfromtxt('ps5_data-labels.csv',delimiter=',')
 y1 = y1-1
 w1Prime = np.genfromtxt('ps5_theta1.csv',delimiter=',')
-w1Prime = w1Prime.T
+w1Prime = w1Prime.T #transpose to do matmul
 w2Prime = np.genfromtxt('ps5_theta2.csv',delimiter=',')
-w2Prime = w2Prime.T
+w2Prime = w2Prime.T #transpose to do matmul
 
 net = NeuralNumpyNetwork()
 
+#get the output layer from the complete network
 outputLayer = net.completeNetwork(w1Prime, w2Prime,x1)
+#get the predicted values and time
 pred, time = net.classifier()
 
 error1 = net.errorRate(y1)
