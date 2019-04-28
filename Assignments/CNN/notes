@@ -1,0 +1,18 @@
+for i in range(n_iteration):
+    # first get a minibatch of data
+    for j in range(n_batch):
+        batch_start_index = j*batch_size
+        # get data batch from the normalized data
+        X_batch = X_train_tensor[batch_start_index:batch_start_index+batch_size]
+        # get ground truth label y
+        y_batch = y_train_tensor[batch_start_index:batch_start_index+batch_size]
+        
+        y_pred = mlp.forward(X_batch)
+        ave_train_loss = criterion(y_pred, y_batch)
+        
+        
+        optimizer.zero_grad()
+        ave_train_loss.backward()
+        optimizer.step()
+        
+        numCorrect, train_accu = get_correct_and_accuracy(y_pred, y_batch)
